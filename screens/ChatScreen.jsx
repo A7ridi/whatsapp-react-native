@@ -1,12 +1,23 @@
-import { FlatList } from "react-native";
+import { FlatList, Pressable } from "react-native";
 import ChatListItem from "../components/chat/ChatListItem";
 import chatData from "../assets/data/chats.json";
+import { useNavigation } from "@react-navigation/native";
 
 const ChatScreen = () => {
+  const navigation = useNavigation();
   return (
     <FlatList
       data={chatData}
-      renderItem={({ item }) => <ChatListItem chat={item} />}
+      renderItem={({ item }) => (
+        <Pressable
+          onPress={() =>
+            navigation.navigate("Chat", { id: item.id, name: item.user.name })
+          }
+        >
+          <ChatListItem chat={item} />
+        </Pressable>
+      )}
+      style={{ paddingVertical: 10, backgroundColor: "whitesmkoe" }}
       showsVerticalScrollIndicator={false}
     />
   );
