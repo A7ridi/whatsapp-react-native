@@ -11,7 +11,11 @@ const ChatScreen = () => {
       renderItem={({ item }) => (
         <Pressable
           onPress={() =>
-            navigation.navigate("Chat", { id: item.id, name: item.user.name })
+            navigation.navigate("Chat", {
+              id: item.id,
+              name: item.user.name,
+              image: item.user.image,
+            })
           }
         >
           <ChatListItem chat={item} />

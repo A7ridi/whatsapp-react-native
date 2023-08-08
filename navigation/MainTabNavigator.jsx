@@ -19,19 +19,20 @@ const MainTabNavigator = () => {
       <Tab.Screen
         name="Chats"
         component={ChatScreen}
-        options={{
+        options={({ navigation }) => ({
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="logo-whatsapp" size={size} color={color} />
           ),
           headerRight: () => (
             <Entypo
+              onPress={() => navigation.navigate("Contacts")}
               name="new-message"
               size={18}
               color={"royalblue"}
               style={{ marginRight: 15 }}
             />
           ),
-        }}
+        })}
       />
 
       <Tab.Screen

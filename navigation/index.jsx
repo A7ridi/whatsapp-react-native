@@ -3,6 +3,7 @@ import MessageScreen from "../screens/MessageScreen";
 import { Ionicons, Entypo } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import MainTabNavigator from "./MainTabNavigator";
+import ContactsScreen from "../screens/ContactsScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -38,6 +39,8 @@ const Navigator = () => {
           },
         }}
       />
+
+      <Stack.Screen name="Contacts" component={ContactsScreen} />
     </Stack.Navigator>
   );
 };

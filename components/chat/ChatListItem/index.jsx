@@ -31,12 +31,12 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     marginHorizontal: 14,
-    marginVertical: 5,
+    // marginVertical: 5,
     height: 70,
   },
   image: {
-    width: 60,
-    height: 60,
+    width: 50,
+    height: 50,
     borderRadius: 30,
     marginRight: 13,
   },
