@@ -7,6 +7,7 @@ const ChatScreen = () => {
     <FlatList
       data={chatData}
       renderItem={({ item }) => <ChatListItem chat={item} />}
+      showsVerticalScrollIndicator={false}
     />
   );
 };
