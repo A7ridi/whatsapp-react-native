@@ -2,13 +2,45 @@ import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import Navigator from "./navigation";
 import { NavigationContainer } from "@react-navigation/native";
-import { Amplify } from "aws-amplify";
+import { API, Amplify, Auth, graphqlOperation } from "aws-amplify";
 import awsconfig from "./src/aws-exports";
 import { withAuthenticator } from "aws-amplify-react-native";
+import { useEffect } from "react";
+import { getUser } from "./src/graphql/queries";
+import { createUser } from "./src/graphql/mutations";
 
 Amplify.configure({ ...awsconfig, Analytics: { disabled: true } });
 
 const App = () => {
+  useEffect(() => {
+    const syncUser = async () => {
+      // get auth user
+      const authUser = await Auth.currentAuthenticatedUser({
+        bypassCache: true,
+      });
+
+      // get userdata using user id
+      const userData = await API.graphql(
+        graphqlOperation(getUser, { id: authUser.attributes.sub })
+      );
+
+      if (userData?.data?.getUser) {
+        return;
+      } else {
+        // create new user if user don't exist
+        const newUser = {
+          id: authUser.attributes.sub,
+          name: authUser.attributes.phone_number,
+          image: "",
+          status: "Hey there, I'm using Whatsapp!",
+        };
+
+        await API.graphql(graphqlOperation(createUser, { input: newUser }));
+      }
+    };
+
+    syncUser();
+  }, []);
   return (
     <View style={styles.container}>
       <NavigationContainer>
