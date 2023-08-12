@@ -1,27 +1,77 @@
-import { StyleSheet, Image, Text, View } from "react-native";
-import React from "react";
-import { formatDate } from "../../../utils/helper";
+import { StyleSheet, Image, Text, View, Pressable } from "react-native";
+import React, { useEffect, useState } from "react";
+import { formatDate, getNameFromEmail } from "../../../utils/helper";
+import { useNavigation } from "@react-navigation/native";
+import { onUpdateChatRoom } from "../../../src/graphql/subscriptions";
+import { API, graphqlOperation } from "aws-amplify";
 
-const ChatListItem = ({ chat }) => {
+const ChatListItem = ({ chat, authUserId }) => {
+  console.log({ chat });
+  const [chatList, setChatList] = useState(chat);
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    // Subscribe to onUpdateChatRoom
+    const subscription = API.graphql(
+      graphqlOperation(onUpdateChatRoom, {
+        filter: { id: { eq: chat.id } },
+      })
+    ).subscribe({
+      next: ({ value }) => {
+        console.log({ value });
+        setChatList((cr) => ({
+          ...(cr || {}),
+          ...value.data.onUpdateChatRoom,
+        }));
+      },
+      error: (error) => console.warn(error),
+    });
+
+    // Stop receiving data updates from the subscription
+    return () => subscription.unsubscribe();
+  }, [chat.id]);
+
+  const user = chatList.users.items;
+  const filterChat = user.find(
+    (singleUser) => singleUser?.user?.id !== authUserId
+  );
+  const filterUsers = filterChat?.user;
+
   return (
-    <View style={styles.container}>
-      <Image source={{ uri: chat.user.image }} style={styles.image} />
+    <Pressable
+      onPress={() =>
+        navigation.navigate("Chat", {
+          id: chatList.id,
+          name: filterUsers?.name,
+        })
+      }
+    >
+      <View style={styles.container}>
+        <Image
+          source={
+            filterUsers?.image
+              ? { uri: filterUsers?.image }
+              : require("../../../assets/images/dp.png")
+          }
+          style={styles.image}
+        />
 
-      <View style={styles.content}>
-        <View style={styles.row}>
-          <Text numberOfLines={1} style={styles.name}>
-            {chat.user.name}
-          </Text>
-          <Text style={styles.time}>
-            {formatDate(chat.lastMessage.createdAt)}
+        <View style={styles.content}>
+          <View style={styles.row}>
+            <Text numberOfLines={1} style={styles.name}>
+              {getNameFromEmail(filterUsers?.name)}
+            </Text>
+            <Text style={styles.time}>
+              {formatDate(chatList.LastMessage?.createdAt)}
+            </Text>
+          </View>
+
+          <Text numberOfLines={2} style={styles.subtitle}>
+            {chatList.LastMessage?.text}
           </Text>
         </View>
-
-        <Text numberOfLines={2} style={styles.subtitle}>
-          {chat.lastMessage.text}
-        </Text>
       </View>
-    </View>
+    </Pressable>
   );
 };
 

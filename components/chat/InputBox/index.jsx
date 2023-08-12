@@ -3,14 +3,39 @@ import { AntDesign } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { API, Auth, graphqlOperation } from "aws-amplify";
+import { createMessage, updateChatRoom } from "../../../src/graphql/mutations";
 
-const InputBox = () => {
+const InputBox = ({ chatVersion, chatRoomId }) => {
   const [newMessage, setNewMessage] = useState("");
-  const onSend = () => {
+
+  const onSend = async () => {
     if (!newMessage) return;
-    console.log("Send a new message: ", newMessage);
+
+    const authUser = await Auth.currentAuthenticatedUser();
+
+    const newMessagePayload = {
+      text: newMessage,
+      chatroomID: chatRoomId,
+      userID: authUser.attributes.sub,
+    };
+
+    const sentMessage = await API.graphql(
+      graphqlOperation(createMessage, { input: newMessagePayload })
+    );
 
     setNewMessage("");
+
+    // set the new message as the last message of the chatroom
+    const res = await API.graphql(
+      graphqlOperation(updateChatRoom, {
+        input: {
+          _version: chatVersion._version,
+          chatRoomLastMessageId: sentMessage.data.createMessage.id,
+          id: chatRoomId,
+        },
+      })
+    );
   };
   return (
     <SafeAreaView edges={["bottom"]} style={styles.container}>

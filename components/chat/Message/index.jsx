@@ -1,23 +1,34 @@
 import { StyleSheet, Text, View } from "react-native";
 import { formatTime } from "../../../utils/helper";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Auth } from "aws-amplify";
+import { useEffect, useState } from "react";
 
 const Message = ({ message, lastMessage }) => {
-  const isMyMessage = message.user.id === "u1";
-  const isLastMessage = lastMessage.id === message.id;
+  const [isMe, setIsMe] = useState(false);
+  const isLastMessage = lastMessage?.id === message?.id;
+
+  const isMyMessage = async () => {
+    const authUser = await Auth.currentAuthenticatedUser();
+
+    setIsMe(message.userID === authUser.attributes.sub);
+  };
+
+  useEffect(() => {
+    isMyMessage();
+  }, []);
 
   return (
     <View
       style={[
         styles.container(isLastMessage),
         {
-          backgroundColor: isMyMessage ? "#DCF8C5" : "white",
-          alignSelf: isMyMessage ? "flex-end" : "flex-start",
+          backgroundColor: isMe ? "#DCF8C5" : "white",
+          alignSelf: isMe ? "flex-end" : "flex-start",
         },
       ]}
     >
-      <Text>{message.text}</Text>
-      <Text style={styles.time}>{formatTime(message.createdAt)}</Text>
+      <Text>{message?.text}</Text>
+      <Text style={styles.time}>{formatTime(message?.createdAt)}</Text>
     </View>
   );
 };
