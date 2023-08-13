@@ -15,7 +15,7 @@ const InputBox = ({ chatVersion, chatRoomId }) => {
     const authUser = await Auth.currentAuthenticatedUser();
 
     const newMessagePayload = {
-      text: newMessage,
+      text: newMessage.trim(),
       chatroomID: chatRoomId,
       userID: authUser.attributes.sub,
     };
@@ -27,7 +27,7 @@ const InputBox = ({ chatVersion, chatRoomId }) => {
     setNewMessage("");
 
     // set the new message as the last message of the chatroom
-    const res = await API.graphql(
+    await API.graphql(
       graphqlOperation(updateChatRoom, {
         input: {
           _version: chatVersion._version,
@@ -46,6 +46,7 @@ const InputBox = ({ chatVersion, chatRoomId }) => {
         multiline
         placeholder="Type your message"
         style={styles.input}
+        onSubmitEditing={onSend}
       />
       <MaterialIcons
         style={styles.send(newMessage)}

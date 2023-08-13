@@ -6,7 +6,6 @@ import { onUpdateChatRoom } from "../../../src/graphql/subscriptions";
 import { API, graphqlOperation } from "aws-amplify";
 
 const ChatListItem = ({ chat, authUserId }) => {
-  console.log({ chat });
   const [chatList, setChatList] = useState(chat);
   const navigation = useNavigation();
 
@@ -18,10 +17,9 @@ const ChatListItem = ({ chat, authUserId }) => {
       })
     ).subscribe({
       next: ({ value }) => {
-        console.log({ value });
         setChatList((cr) => ({
           ...(cr || {}),
-          ...value.data.onUpdateChatRoom,
+          LastMessage: value.data.onUpdateChatRoom.LastMessage,
         }));
       },
       error: (error) => console.warn(error),

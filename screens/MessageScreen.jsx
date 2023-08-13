@@ -12,7 +12,7 @@ import bg from "../assets/images/BG.png";
 import Message from "../components/chat/Message";
 import InputBox from "../components/chat/InputBox";
 import { useRoute, useNavigation } from "@react-navigation/native";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { API, graphqlOperation } from "aws-amplify";
 import { getChatRoom, listMessagesByChatRoom } from "../src/graphql/queries";
 import {
@@ -26,12 +26,18 @@ const MessageScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const chatRoomId = route.params.id;
-  let listViewRef;
+  const flatListRef = useRef(null);
 
-  // move to bottom of screen
+  const scrollToBottom = () => {
+    if (flatListRef.current) {
+      flatListRef.current.scrollToEnd({ animated: false });
+    }
+  };
+
   useEffect(() => {
-    listViewRef?.scrollToEnd({ animated: true });
-  }, [listViewRef]);
+    // Scroll to the end of the list when the component mounts
+    scrollToBottom();
+  }, []);
 
   useEffect(() => {
     API.graphql(graphqlOperation(getChatRoom, { id: chatRoomId })).then(
@@ -118,9 +124,9 @@ const MessageScreen = () => {
             keyExtractor={(item) => item.id}
             showsHorizontalScrollIndicator={false}
             showsVerticalScrollIndicator={false}
-            ref={(ref) => {
-              listViewRef = ref;
-            }}
+            ref={flatListRef}
+            onContentSizeChange={scrollToBottom}
+            onLayout={scrollToBottom}
           />
         )}
 
