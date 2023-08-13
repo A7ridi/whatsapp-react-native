@@ -33,9 +33,11 @@ const AddUserInGroup = () => {
       .then(async (users) => {
         const arr = await filterAuthUser(users?.data?.listUsers?.items);
         // filtering users those are participants of this group
-        const filteredUser = arr.filter(
+        const filteredUser = arr?.filter(
           (u) =>
-            !chatRoom.users.items.some((chatUser) => chatUser.user.id === u.id)
+            !chatRoom?.users?.items?.some(
+              (chatUser) => chatUser?.user?.id === u?.id && !chatUser?._deleted
+            )
         );
 
         setUsers(filteredUser);

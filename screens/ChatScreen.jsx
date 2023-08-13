@@ -25,7 +25,7 @@ const ChatScreen = () => {
     );
 
     const rooms =
-      res.data.getUser?.ChatRooms?.items.filter((u) => !u._deleted) || [];
+      res?.data?.getUser?.ChatRooms?.items?.filter((u) => !u._deleted) || [];
     const sortedRooms = sortMessageByDate(rooms);
 
     setIsLoading(false);
