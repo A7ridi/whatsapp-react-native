@@ -6,7 +6,6 @@ import {
   Platform,
   View,
   ActivityIndicator,
-  Button,
 } from "react-native";
 import bg from "../assets/images/BG.png";
 import Message from "../components/chat/Message";
@@ -19,6 +18,7 @@ import {
   onCreateMessage,
   onUpdateChatRoom,
 } from "../src/graphql/subscriptions";
+import { Entypo } from "@expo/vector-icons";
 
 const MessageScreen = () => {
   const [chatRoom, setChatRoom] = useState(null);
@@ -97,7 +97,17 @@ const MessageScreen = () => {
   }, [chatRoomId]);
 
   useEffect(() => {
-    navigation.setOptions({ title: route.params.name });
+    navigation.setOptions({
+      title: route.params.name,
+      headerRight: () => (
+        <Entypo
+          name="info-with-circle"
+          size={24}
+          color="royalblue"
+          onPress={() => navigation.navigate("Group Info", { id: chatRoomId })}
+        />
+      ),
+    });
   }, [route.params]);
 
   return (

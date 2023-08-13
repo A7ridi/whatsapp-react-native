@@ -1,9 +1,10 @@
-import { StyleSheet, Image, Text, View, Pressable } from "react-native";
+import { StyleSheet, Text, View, Pressable } from "react-native";
 import React, { useEffect, useState } from "react";
 import { formatDate, getNameFromEmail } from "../../../utils/helper";
 import { useNavigation } from "@react-navigation/native";
 import { onUpdateChatRoom } from "../../../src/graphql/subscriptions";
 import { API, graphqlOperation } from "aws-amplify";
+import ProfilePicture from "../../common/ProfilePicture";
 
 const ChatListItem = ({ chat, authUserId }) => {
   const [chatList, setChatList] = useState(chat);
@@ -34,37 +35,36 @@ const ChatListItem = ({ chat, authUserId }) => {
     (singleUser) => singleUser?.user?.id !== authUserId
   );
   const filterUsers = filterChat?.user;
+  const chatNamme = chatList?.name || getNameFromEmail(filterUsers?.name);
 
   return (
     <Pressable
       onPress={() =>
         navigation.navigate("Chat", {
           id: chatList.id,
-          name: filterUsers?.name,
+          name: chatList?.name || filterUsers?.name,
         })
       }
     >
       <View style={styles.container}>
-        <Image
-          source={
-            filterUsers?.image
-              ? { uri: filterUsers?.image }
-              : require("../../../assets/images/dp.png")
-          }
-          style={styles.image}
-        />
+        <ProfilePicture name={chatNamme} />
 
         <View style={styles.content}>
           <View style={styles.row}>
             <Text numberOfLines={1} style={styles.name}>
-              {getNameFromEmail(filterUsers?.name)}
+              {chatNamme}
+              {chatList?.name && (
+                <View style={styles.group}>
+                  <Text style={styles.groupText}>G</Text>
+                </View>
+              )}
             </Text>
             <Text style={styles.time}>
               {formatDate(chatList.LastMessage?.createdAt)}
             </Text>
           </View>
 
-          <Text numberOfLines={2} style={styles.subtitle}>
+          <Text numberOfLines={1} style={styles.subtitle}>
             {chatList.LastMessage?.text}
           </Text>
         </View>
@@ -79,14 +79,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     marginHorizontal: 14,
-    // marginVertical: 5,
     height: 70,
-  },
-  image: {
-    width: 50,
-    height: 50,
-    borderRadius: 30,
-    marginRight: 13,
   },
   content: {
     flex: 1,
@@ -105,5 +98,18 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     color: "gray",
+  },
+  group: {
+    backgroundColor: "royalblue",
+    width: 20,
+    height: 20,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 6,
+  },
+  groupText: {
+    color: "white",
+    fontSize: 13,
   },
 });

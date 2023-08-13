@@ -1,4 +1,4 @@
-import { Text, Image, StyleSheet, Pressable, View } from "react-native";
+import { Text, StyleSheet, Pressable, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { API, Auth, graphqlOperation } from "aws-amplify";
 import {
@@ -7,19 +7,38 @@ import {
 } from "../../src/graphql/mutations";
 import { getExistingChatRoom } from "../../utils/chatRoomService";
 import { getNameFromEmail } from "../../utils/helper";
+import ProfilePicture from "../common/ProfilePicture";
+import { AntDesign, FontAwesome } from "@expo/vector-icons";
+import { useEffect, useState } from "react";
 
-const ContactListItem = ({ user }) => {
+const ContactListItem = ({
+  user,
+  selectable = false,
+  isSelected = false,
+  clickable = false,
+  onPress = () => {},
+}) => {
+  const [loggedInUser, setLoggedInUser] = useState(null);
   const navigation = useNavigation();
 
-  const onPress = async () => {
-    const authUser = await Auth.currentAuthenticatedUser();
-    const authUserId = authUser.attributes.sub;
+  useEffect(() => {
+    const fetchUser = async () => {
+      const authUser = await Auth.currentAuthenticatedUser();
+      const authUserId = authUser.attributes.sub;
+      setLoggedInUser(authUserId);
+    };
+    fetchUser();
+  }, []);
 
-    const existingChatRoom = await getExistingChatRoom(user.id, authUserId);
+  const onContactListPress = async () => {
+    const existingChatRoom = await getExistingChatRoom(user.id, loggedInUser);
 
     if (existingChatRoom) {
       const id = existingChatRoom?.id || existingChatRoom.chatRoom.id;
-      navigation.navigate("Chat", { id });
+      navigation.navigate("Chat", {
+        id,
+        name: existingChatRoom.chatRoom?.name,
+      });
       return;
     } else {
       // create new chat room
@@ -43,33 +62,48 @@ const ContactListItem = ({ user }) => {
       // add the auth user to the chat room
       await API.graphql(
         graphqlOperation(createUserChatRoom, {
-          input: { chatRoomId: newChatRoom.id, userId: authUserId },
+          input: { chatRoomId: newChatRoom.id, userId: loggedInUser },
         })
       );
 
       // navigate to the chat screen
-      navigation.navigate("Chat", { id: newChatRoom.id });
+      navigation.navigate("Chat", {
+        id: newChatRoom.id,
+        name: newChatRoom?.name,
+      });
     }
   };
 
+  const status = user.status;
+
   return (
-    <Pressable onPress={onPress} style={styles.container}>
-      <Image
-        source={
-          user.image
-            ? { uri: user.image }
-            : require("../../assets/images/dp.png")
-        }
-        style={styles.image}
-      />
+    <Pressable
+      onPress={() =>
+        selectable || clickable ? onPress() : onContactListPress()
+      }
+      style={styles.container(isSelected)}
+    >
+      {selectable && (
+        <View style={styles.selectIcon}>
+          {isSelected ? (
+            <AntDesign name="checkcircle" size={24} color="royalblue" />
+          ) : (
+            <FontAwesome name="circle-thin" size={24} color="lightgray" />
+          )}
+        </View>
+      )}
+
+      <ProfilePicture name={getNameFromEmail(user.name)} />
 
       <View style={styles.content}>
         <Text style={styles.name} numberOfLines={1}>
-          {getNameFromEmail(user.name)}
+          {loggedInUser === user.id ? "Me" : getNameFromEmail(user.name)}
         </Text>
 
         <Text numberOfLines={1} style={styles.subTitle}>
-          {user.status}
+          {selectable && status.length > 40
+            ? status.substring(0, 35).trim() + "..."
+            : status}
         </Text>
       </View>
     </Pressable>
@@ -77,12 +111,15 @@ const ContactListItem = ({ user }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
+  container: (isSelected) => ({
     flexDirection: "row",
     marginHorizontal: 10,
     height: 70,
     alignItems: "center",
-  },
+    backgroundColor: isSelected ? "#ccd9ff" : "whitesmoke",
+    borderRadius: isSelected ? 10 : 0,
+    marginVertical: isSelected ? 1 : 0,
+  }),
   image: {
     width: 50,
     height: 50,
@@ -94,6 +131,10 @@ const styles = StyleSheet.create({
   },
   subTitle: {
     color: "gray",
+  },
+  selectIcon: {
+    marginRight: 5,
+    marginLeft: 5,
   },
 });
 
