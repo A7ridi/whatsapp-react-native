@@ -44,7 +44,7 @@ const getRandomColor = () => {
 };
 
 const getInitials = (name) => {
-  const words = name.split(" ");
+  const words = name?.split(" ") || "";
   let initials = "";
 
   if (words.length === 1) {
@@ -64,11 +64,30 @@ const getAuthUserId = async () => {
 const filterAuthUser = async (users) => {
   const authUser = await getAuthUserId();
   if (authUser) {
-    const arr = users.filter((user) => user.id !== authUser);
+    const arr = users.filter((user) => user.id !== authUser && !user._deleted);
     return arr;
   }
   return users;
 };
+
+function generateUUID() {
+  let d = new Date().getTime();
+  const uuid = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+    /[xy]/g,
+    function (c) {
+      const r = (d + Math.random() * 16) % 16 | 0;
+      d = Math.floor(d / 16);
+      return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
+    }
+  );
+  return uuid;
+}
+
+function isImage(fileName) {
+  const imageExtensions = ["jpg", "jpeg", "png", "gif", "bmp", "svg"]; // Add more extensions as needed
+  const extension = fileName.split(".").pop().toLowerCase();
+  return imageExtensions.includes(extension);
+}
 
 export {
   sortMessageByDate,
@@ -79,4 +98,6 @@ export {
   getInitials,
   getAuthUserId,
   filterAuthUser,
+  generateUUID,
+  isImage,
 };

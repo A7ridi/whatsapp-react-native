@@ -3,7 +3,7 @@ import { View, Text, Image, StyleSheet } from "react-native";
 const NotImplementedScreen = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Not Implemented!</Text>
+      <Text style={styles.text}>Coming soon!</Text>
       <Image
         source={{
           uri: "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/images/capybara+copy.png",

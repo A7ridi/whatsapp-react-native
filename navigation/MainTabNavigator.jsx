@@ -1,8 +1,9 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import NotImplementedScreen from "../screens/NotImplementedScreen";
 import ChatScreen from "../screens/ChatScreen";
-import { Ionicons, Entypo } from "@expo/vector-icons";
+import { Ionicons, Entypo, FontAwesome } from "@expo/vector-icons";
 import Settings from "../screens/Settings";
+import ContactsScreen from "../screens/ContactsScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -15,6 +16,7 @@ const MainTabNavigator = () => {
         tabBarLabelStyle: { fontSize: 12, marginBottom: 4 },
         tabBarStyle: { backgroundColor: "whitesmoke" },
         headerStyle: { backgroundColor: "whitesmoke" },
+        tabBarShowLabel: false,
       }}
     >
       <Tab.Screen
@@ -22,7 +24,15 @@ const MainTabNavigator = () => {
         component={ChatScreen}
         options={({ navigation }) => ({
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="logo-whatsapp" size={size} color={color} />
+            <Ionicons
+              name={
+                color === "#8E8E8F"
+                  ? "chatbubble-ellipses-outline"
+                  : "chatbubble-ellipses"
+              }
+              size={size}
+              color={color}
+            />
           ),
           headerRight: () => (
             <Entypo
@@ -43,7 +53,7 @@ const MainTabNavigator = () => {
           tabBarIcon: ({ color, size }) => (
             <Ionicons
               name="ios-sync-circle-outline"
-              size={size}
+              size={size * 1.1}
               color={color}
             />
           ),
@@ -55,25 +65,33 @@ const MainTabNavigator = () => {
         component={NotImplementedScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="camera-outline" size={size} color={color} />
+            <Ionicons name="camera-outline" size={size * 1.1} color={color} />
           ),
         }}
       />
       <Tab.Screen
-        name="Calls"
-        component={NotImplementedScreen}
+        name="Contacts"
+        component={ContactsScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="call-outline" size={size} color={color} />
+            <Ionicons
+              name={color === "#8E8E8F" ? "people-outline" : "people-sharp"}
+              size={size}
+              color={color}
+            />
           ),
         }}
       />
       <Tab.Screen
-        name="Settings"
+        name="Profile"
         component={Settings}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="settings-outline" size={size} color={color} />
+            <FontAwesome
+              name={color === "#8E8E8F" ? "user-circle-o" : "user-circle-o"}
+              size={size}
+              color={color}
+            />
           ),
         }}
       />

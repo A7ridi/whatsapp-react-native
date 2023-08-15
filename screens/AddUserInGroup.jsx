@@ -2,17 +2,16 @@ import React, { useState, useEffect } from "react";
 import {
   FlatList,
   View,
-  TextInput,
   StyleSheet,
   Text,
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
 import ContactListItem from "../components/ContactListItem";
-import { API, Auth, graphqlOperation } from "aws-amplify";
+import { API, graphqlOperation } from "aws-amplify";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { listUsers } from "../src/graphql/queries";
-import { createChatRoom, createUserChatRoom } from "../src/graphql/mutations";
+import { createUserChatRoom } from "../src/graphql/mutations";
 import { filterAuthUser } from "../utils/helper";
 
 const AddUserInGroup = () => {

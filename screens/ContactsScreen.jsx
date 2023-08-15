@@ -7,11 +7,11 @@ import {
 } from "react-native";
 import ContactListItem from "../components/ContactListItem";
 import { API, graphqlOperation } from "aws-amplify";
-import { listUsers } from "../src/graphql/queries";
 import { useEffect, useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { filterAuthUser } from "../utils/helper";
+import { optimizedListUsers } from "../src/graphql/queries/getUser";
 
 const ContactsScreen = () => {
   const [users, setUsers] = useState(null);
@@ -19,7 +19,7 @@ const ContactsScreen = () => {
   const navigation = useNavigation();
 
   useEffect(() => {
-    API.graphql(graphqlOperation(listUsers))
+    API.graphql(graphqlOperation(optimizedListUsers))
       .then(async (users) => {
         const arr = await filterAuthUser(users?.data?.listUsers?.items);
         setUsers(arr);

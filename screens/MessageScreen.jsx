@@ -15,6 +15,7 @@ import { useEffect, useRef, useState } from "react";
 import { API, graphqlOperation } from "aws-amplify";
 import { getChatRoom, listMessagesByChatRoom } from "../src/graphql/queries";
 import {
+  onCreateAttachment,
   onCreateMessage,
   onUpdateChatRoom,
 } from "../src/graphql/subscriptions";
@@ -92,8 +93,39 @@ const MessageScreen = () => {
       error: (error) => console.warn(error),
     });
 
+    // Subscribe to new attachments
+    const subscriptionAttachments = API.graphql(
+      graphqlOperation(onCreateAttachment, {
+        filter: { chatroomID: { eq: chatRoomId } },
+      })
+    ).subscribe({
+      next: ({ value }) => {
+        const newAttachment = value.data.onCreateAttachment;
+        setChatRoom((existingMessages) => {
+          const messageToUpdate = existingMessages.find(
+            (em) => em.id === newAttachment.messageID
+          );
+          if (!messageToUpdate) {
+            return existingMessages;
+          }
+          if (!messageToUpdate?.Attachments?.items) {
+            messageToUpdate.Attachments.items = [];
+          }
+          messageToUpdate.Attachments.items.push(newAttachment);
+
+          return existingMessages?.map((m) =>
+            m.id === messageToUpdate.id ? messageToUpdate : m
+          );
+        });
+      },
+      error: (err) => console.warn(err),
+    });
+
     // Stop receiving data updates from the subscription
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      subscriptionAttachments.unsubscribe();
+    };
   }, [chatRoomId]);
 
   useEffect(() => {

@@ -69,6 +69,7 @@ const ChatRoomInfo = () => {
   };
 
   const onContactPress = (userChatRoom) => {
+    if (!chatRoom?.name) return;
     Alert.alert(
       "Removing from group",
       `Are you sure you want to remove ${userChatRoom.user.name} from this group?`,
@@ -94,19 +95,21 @@ const ChatRoomInfo = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{chatRoom?.name}</Text>
+      {chatRoom?.name && <Text style={styles.title}>{chatRoom?.name}</Text>}
 
       <View style={styles.addUserContainer}>
         <Text style={styles.sectionTitle}>
           {deletedUsers.length} Participants
         </Text>
 
-        <TouchableOpacity
-          onPress={() => navigation.navigate("AddUserInGroup", { chatRoom })}
-          style={styles.addUser}
-        >
-          <Text style={styles.adduserText}>Add User</Text>
-        </TouchableOpacity>
+        {chatRoom?.name && (
+          <TouchableOpacity
+            onPress={() => navigation.navigate("AddUserInGroup", { chatRoom })}
+            style={styles.addUser}
+          >
+            <Text style={styles.adduserText}>Add User</Text>
+          </TouchableOpacity>
+        )}
       </View>
       <View style={styles.section}>
         <FlatList

@@ -15,6 +15,7 @@ export const listChatRooms = /* GraphQL */ `
                   id
                   image
                   name
+                  _deleted
                 }
               }
             }
@@ -48,6 +49,25 @@ export const getUserFromChatRooms = /* GraphQL */ `
             }
           }
         }
+      }
+    }
+  }
+`;
+
+export const optimizedListUsers = /* GraphQL */ `
+  query ListUsers(
+    $filter: ModelUserFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listUsers(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        name
+        status
+        image
+        _version
+        _deleted
       }
     }
   }

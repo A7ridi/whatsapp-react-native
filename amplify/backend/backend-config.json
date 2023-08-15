@@ -47,5 +47,12 @@
       "providerPlugin": "awscloudformation",
       "service": "Cognito"
     }
+  },
+  "storage": {
+    "s3whatsappclonestoragee4c58daa": {
+      "dependsOn": [],
+      "providerPlugin": "awscloudformation",
+      "service": "S3"
+    }
   }
 }
